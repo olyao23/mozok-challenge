@@ -3,16 +3,12 @@ import "./App.css";
 import { Box, Button, Grid, Typography, useTheme } from "@mui/material";
 import QuotesTable from "./quotes-table/QuotesTable";
 import DisplayQuote from "./display-quote/DisplayQuote";
-import AcUnitIcon from "@mui/icons-material/AcUnit";
+import { AcUnit, ChevronRight, ChevronLeft } from "@mui/icons-material";
 
 function App() {
-  // const quotesUrl = "https://api.themotivate365.com/stoic-quote"; //this works, has author and wuote, but object
-  //https://pprathameshmore.github.io/QuoteGarden/ check this
-  //https://github.com/public-apis/public-apis#index check link
-  //https://github.com/tlcheah2/stoic-quote-lambda-public-api check this
-  //https://free-apis.github.io/#/categories/Personality this too
   const theme = useTheme();
-  const [selectedRandomQuote, setSelectedRandomQuote] = useState(false);
+  const [selectedRandomQuotes, setSelectedRandomQuotes] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const quoteUrl =
     "https://quotesondesign.com/wp-json/wp/v2/posts/?orderby=rand";
@@ -24,8 +20,9 @@ function App() {
       const response = await fetch(quoteUrl);
       const data = await response.json();
       setQuotesData(data);
+      setLoading(false);
     } catch (error) {
-      console.log("Error");
+      console.log(error);
     }
   };
 
@@ -36,19 +33,27 @@ function App() {
   return (
     <Box p={5} sx={{ backgroundColor: theme.palette.grey.A200 }}>
       <Box display="flex" alignItems="center" mb={3}>
-        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }} mr={1}>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: "bold", fontFamily: "Brush Script MT, cursive" }}
+          mr={1}
+        >
           Coding challenge by Mozok GmbH
         </Typography>
-        <AcUnitIcon />
+        <AcUnit />
       </Box>
 
-      {selectedRandomQuote ? (
+      {selectedRandomQuotes ? (
         <Box>
           <Button
             variant="contained"
-            onClick={() => setSelectedRandomQuote(false)}
+            onClick={() => {
+              setSelectedRandomQuotes(false);
+              setLoading(false);
+            }}
+            startIcon={<ChevronLeft />}
           >
-            Go Back
+            Back
           </Button>
           <Grid
             container
@@ -57,16 +62,19 @@ function App() {
             flexDirection="column"
           >
             <Grid item>
+              <Typography
+                variant="h5"
+                textAlign="center"
+                sx={{ fontFamily: "Brush Script MT, cursive" }}
+              >
+                Random Quotes
+              </Typography>
               <DisplayQuote
                 quotesData={
                   quotesData[Math.floor(Math.random() * quotesData.length)]
                 }
+                fetchQuotes={() => fetchQuotes()}
               />
-            </Grid>
-            <Grid item>
-              <Button variant="contained" onClick={() => fetchQuotes()}>
-                Show a different quote
-              </Button>
             </Grid>
           </Grid>
         </Box>
@@ -77,14 +85,16 @@ function App() {
           alignItems="center"
           flexDirection="column"
         >
-          <QuotesTable quotesData={quotesData} />
+          <QuotesTable quotesData={quotesData} loading={loading} />
           <Button
             variant="contained"
+            endIcon={<ChevronRight />}
             onClick={() => {
-              setSelectedRandomQuote(true);
+              setSelectedRandomQuotes(true);
+              setLoading(true);
             }}
           >
-            Show a random quote
+            Quotes
           </Button>
         </Box>
       )}
