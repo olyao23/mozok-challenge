@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
-import "./App.css";
+import { useEffect, useState } from "react";
 import { Box, Button, Grid, Typography, useTheme } from "@mui/material";
 import QuotesTable from "./quotes-table/QuotesTable";
 import DisplayQuote from "./display-quote/DisplayQuote";
 import { AcUnit, ChevronRight, ChevronLeft } from "@mui/icons-material";
+import axios from "axios";
 
 function App() {
   const theme = useTheme();
   const [selectedRandomQuotes, setSelectedRandomQuotes] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [quotesData, setQuotesData] = useState<any[]>([]);
+  const [ageEmojis, setAgeEmojis] = useState<any[]>([]);
   const quoteUrl =
     "https://quotesondesign.com/wp-json/wp/v2/posts/?orderby=rand";
-
-  const [quotesData, setQuotesData] = useState<any[]>([]);
 
   const fetchQuotes = async () => {
     try {
@@ -26,9 +25,44 @@ function App() {
     }
   };
 
+  const fetchAge = async () => {
+    try {
+      let authorsNames = quotesData.map((author: any) => {
+        let authorNameSurname = author.title.rendered.split(" ");
+        return authorNameSurname[0];
+      });
+
+      const agesPromises = authorsNames.map((name: string) =>
+        axios.get(`https://api.agify.io?name=${name}`)
+      );
+
+      const data = await Promise.all(agesPromises);
+
+      const agesWithEmojis = data.map((item) => {
+        return item.data.age < 30 ? (
+          <span role="img" aria-label="young">
+            👱‍
+          </span>
+        ) : (
+          <span role="img" aria-label="old">
+            👩‍🦳
+          </span>
+        );
+      });
+
+      setAgeEmojis(agesWithEmojis);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchQuotes();
   }, []);
+
+  useEffect(() => {
+    fetchAge();
+  }, [quotesData]);
 
   return (
     <Box p={5} sx={{ backgroundColor: theme.palette.grey.A200 }}>
@@ -85,7 +119,11 @@ function App() {
           alignItems="center"
           flexDirection="column"
         >
-          <QuotesTable quotesData={quotesData} loading={loading} />
+          <QuotesTable
+            quotesData={quotesData}
+            loading={loading}
+            ageEmojis={ageEmojis}
+          />
           <Button
             variant="contained"
             endIcon={<ChevronRight />}

@@ -3,7 +3,7 @@ import { Refresh } from "@mui/icons-material";
 import { MouseEventHandler } from "react";
 
 const DisplayQuote = (props: {
-  quotesData: { content: { rendered: any }; title: { rendered: any } };
+  quotesData: { content: { rendered: string }; title: { rendered: string } };
   fetchQuotes: MouseEventHandler<HTMLButtonElement> | undefined;
 }) => {
   const theme = useTheme();
