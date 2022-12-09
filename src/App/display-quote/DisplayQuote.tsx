@@ -3,13 +3,16 @@ import { Refresh } from "@mui/icons-material";
 import { MouseEventHandler } from "react";
 
 const DisplayQuote = (props: {
-  quotesData: { content: { rendered: string }; title: { rendered: string } };
+  quotesDataItem: {
+    content: { rendered: string };
+    title: { rendered: string };
+  };
   fetchQuotes: MouseEventHandler<HTMLButtonElement> | undefined;
 }) => {
   const theme = useTheme();
-  const initialQuote = props.quotesData.content.rendered;
+  const initialQuote = props.quotesDataItem.content.rendered;
   const quote = initialQuote.substring(3, initialQuote.length - 5);
-  const author = `- ${props.quotesData.title.rendered}`;
+  const author = `- ${props.quotesDataItem.title.rendered}`;
 
   return (
     <Grid container item justifyContent="center" alignItems="center">

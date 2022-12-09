@@ -7,8 +7,9 @@ import axios from "axios";
 
 function App() {
   const theme = useTheme();
-  const [selectedRandomQuotes, setSelectedRandomQuotes] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [selectedRandomQuotes, setSelectedRandomQuotes] =
+    useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [quotesData, setQuotesData] = useState<any[]>([]);
   const [ageEmojis, setAgeEmojis] = useState<any[]>([]);
   const quoteUrl =
@@ -33,19 +34,19 @@ function App() {
       });
 
       const agesPromises = authorsNames.map((name: string) =>
-        axios.get(`https://api.agify.io?name=${name}`)
+        axios.get(`https://api.genderize.io?name=${name}`)
       );
 
       const data = await Promise.all(agesPromises);
 
       const agesWithEmojis = data.map((item) => {
-        return item.data.age < 30 ? (
-          <span role="img" aria-label="young">
-            👱‍
+        return item.data.gender === "female" ? (
+          <span role="img" aria-label="female">
+            👩
           </span>
         ) : (
-          <span role="img" aria-label="old">
-            👩‍🦳
+          <span role="img" aria-label="male">
+            👱‍
           </span>
         );
       });
@@ -65,7 +66,10 @@ function App() {
   }, [quotesData]);
 
   return (
-    <Box p={5} sx={{ backgroundColor: theme.palette.grey.A200 }}>
+    <Box
+      p={5}
+      sx={{ backgroundColor: theme.palette.grey.A200, height: "100%" }}
+    >
       <Box display="flex" alignItems="center" mb={3}>
         <Typography
           variant="subtitle1"
@@ -104,7 +108,7 @@ function App() {
                 Random Quotes
               </Typography>
               <DisplayQuote
-                quotesData={
+                quotesDataItem={
                   quotesData[Math.floor(Math.random() * quotesData.length)]
                 }
                 fetchQuotes={() => fetchQuotes()}
